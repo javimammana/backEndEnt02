@@ -18,12 +18,13 @@ class CartManager {
 
     async getCartById(id) {
         try {
-            const cart = await CartModel.findById(id);
+            const cart = await CartModel.findById(id).populate("products.product").lean();
             if (!cart) {
                 console.log ("El carrito no existe.");
                 return null;
             }
             console.log ("Carrito encontrado.");
+            console.log (cart.products)
             return cart;
         } catch (error) {
             console.log ("Error al buscar carrito por ID", error)
@@ -31,7 +32,7 @@ class CartManager {
         }
     }
     
-    async addProductInCart (cid, pid, res) {
+    async addProductInCart (cid, pid) {
         try {
             const cart = await this.getCartById(cid);
             if (!cart) {
@@ -63,11 +64,123 @@ class CartManager {
         }
     }
 
+    async updateCart (cid, update) {
+
+        try {
+            const cart = await this.getCartById(cid);
+            if (!cart) {
+                console.log("El carrito no existe")
+                return null;
+            }
+
+            await this.deleteCart(cid);
+
+            for (const prod of update) {
+                let prodSRC = await manager.getProductById(prod.product);
+                if (prodSRC) {
+                    console.log(prod)
+                    await this.addProductInCart(cid, prod.product);
+                    await this.updateItem(cid, prod.product, prod);
+                }
+            }
+
+        } catch (error) {
+            console.log ("Error al actualizar carrito", error);
+            throw error;
+        }
+    }
+
+    async updateItem (cid, pid, update) {
+
+        try {
+            const cart = await this.getCartById(cid);
+            if (!cart) {
+                console.log("El carrito no existe")
+                return null;
+            }
+
+            const prod = await manager.getProductById(pid);
+            if (!prod) {
+                console.log("El producto no existe.")
+                return null;
+            }
+
+            const existProd = cart.products.find(item => item.product.toString() === pid);
+            if (existProd) {
+                existProd.quantity = update.quantity;
+            } else {
+                console.log("El producto no existe en carrito");
+            }
+
+            cart.markModified("products");
+
+            await cart.save();
+            return cart;
+
+        } catch (error) {
+            console.log ("Error al actualizar producto en carrito", error);
+            throw error;
+        }
+    }
+
     async deleteCart (cid) {
 
+        try {
+            const cart = await this.getCartById(cid);
+            if (!cart) {
+                console.log("El carrito no existe")
+                return null;
+            }
+
+            cart.products = [];
+
+            cart.markModified("products");
+
+            await cart.save();
+            return cart;
+
+        } catch (error) {
+            console.log ("Error al vaciar carrito", error);
+            throw error;
+        }
     }
 
     async deleteItem (cid, pid) {
+
+        try {
+            
+            const cart = await this.getCartById(cid);
+            if (!cart) {
+                console.log("El carrito no existe")
+                return null;
+            }
+
+            const prod = await manager.getProductById(pid);
+            if (!prod) {
+                console.log("El producto no existe.")
+                return null;
+            }
+
+            
+            const existProd = cart.products.find(item => item.product.toString() === pid);
+            console.log(existProd)
+            if (existProd) {
+                console.log("Existe!");
+                await cart.products.splice(cart.products.indexOf(existProd),1)
+            } else {
+                console.log("El producto no existe en el carrito.-")
+                return null;
+            }
+
+            cart.markModified("products");
+
+            await cart.save();
+            return cart;
+
+        } catch (error) {
+            console.log ("Error al borrar producto del carrito", error);
+            throw error;
+        }
     }
 }
 

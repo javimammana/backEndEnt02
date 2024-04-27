@@ -45,6 +45,13 @@ class ProductManager {
         }
     }
 
+    async getProductsPaginate (limit, page, query, sort) {
+        const filtro = query ? {category: query} : {};
+        const orden = sort ? {price: Number(sort)} : {};
+        const productos = await ProductModel.paginate(filtro, {limit: limit || 10, page: page || 1, sort : orden});
+        return productos;
+    }
+
     async getProductById(id) {
         try {
             const producto = await ProductModel.findById(id);

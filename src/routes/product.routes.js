@@ -49,17 +49,30 @@ function validateProd (req, res, next) {
 
 router.get("/", async (req,res) => {
     try {
-        const limit = req.query.limit;
-        const productos = await manager.getProducts();
-        if (limit) {
-            res.json(productos.slice(0, limit));
-        } else {
-            res.json(productos);
-        }
+
+        const { limit, query, page, sort } = req.query;
+
+        const productos = await manager.getProductsPaginate(limit, page, query, sort);
+        console.log(productos);
+
+        res.json({
+            status:"success",
+            payload: productos.totalDocs,
+            totalPages: productos.totalPages,
+            prevPage: productos.prevPage,
+            nextPage: productos.nextPage,
+            page: productos.page,
+            hasPrevPage: productos.hasPrevPage,
+            hasNextPage: productos.hasNextPage,
+            prevLink: productos.hasPrevPage ? `/api/products?page=${productos.prevPage}&&limit={{productos.limit}}&query={{query}}&sort={{sort}}` : null,
+            nextLink: productos.hasNextPage ? `/api/products?page=${productos.nextPage}&&limit={{productos.limit}}&query={{query}}&sort={{sort}}` : null,
+        })
+
     } catch (error) {
         console.error("Error al obtener productos", error);
         res.status(500).json({
-            error: "Error interno del servidor"
+            error: "Error interno del servidor",
+            status:"error",
         });
     }
 })
