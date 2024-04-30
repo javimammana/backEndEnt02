@@ -86,6 +86,38 @@
     border-radius: 7px;
 }
 
+/*  Producto  */
+
+.productBox {
+    display: flex;
+    margin: 15px;
+    border: solid 1px #000;
+    border-radius: 7px;
+    padding: 10px;
+}
+
+.productImg {
+    width: 250px;
+    border-radius: 5px;
+}
+
+.productDatos {
+    display: flex;
+    flex-direction: column;
+    align-items: space-between;
+    padding-left: 15px;
+}
+
+.productDatos div {
+    align-content: end;
+}
+
+.productDatos div div {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 0px;
+}
+
 /*  Paginacion  */
 
 .pagContenedor {

@@ -58,6 +58,22 @@ router.get("/products", async (req, res) => {
     }
 });
 
+router.get ("/product/:pid", async(req, res) => {
+    try {
+        const {pid} = req.params;
+        const product = await manager.getProductById(pid);
+        console.log(product)
+        res.render("product", {
+            title: product ? product.title : "El producto no existe",
+            fileCss: "style.css",
+            product
+        });
+    } catch (error) {
+        res.status(500).json({error: "Error del servicor"});
+        console.log (error)
+    }
+})
+
 router.get("/carts/:cid", async (req, res) => {
     const { cid } = req.params;
 

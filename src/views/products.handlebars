@@ -9,9 +9,13 @@
         {{#each elementos}}
         <div class="card">
             <div>
-                <img class="img" src="../../img/{{this.img}}">
+                <a href="/product/{{this._id}}">
+                    <img class="img" src="../../img/{{this.img}}"> 
+                </a>
             </div>
-            <h4>{{ this.title }}</h4>
+            <a href="/product/{{this._id}}">
+                <h4>{{ this.title }}</h4>
+            </a>
             <p>{{ this.description }}</p>
             <div class="cardInfo">
                 <p>Stock: {{ this.stock }}</p>
